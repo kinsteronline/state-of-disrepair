@@ -1,0 +1,19 @@
+{
+  "name": "state-of-disrepair",
+  "version": "0.0.0",
+  "description": "A state machine in a constant state of disrepair.",
+  "main": "src/StateMachine.js",
+  "scripts": {
+    "test": "echo \"open SpecRunner.html\""
+  },
+  "author": "kinsteronline",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kinsteronline/state-of-disrepair.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kinsteronline/state-of-disrepair/issues"
+  },
+  "homepage": "https://github.com/kinsteronline/state-of-disrepair"
+}
