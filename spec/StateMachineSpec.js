@@ -81,6 +81,11 @@ describe("State Machine", function() {
       spyOn(fsm, 'onbeforegoToCastle');
     });
 
+    it("should not complain when trying to re-enter the current state", function() {
+      fsm.goToCastle();
+      expect(fsm.goToCastle).not.toThrow();
+    });
+
     it("changes state on event", function() {
       fsm.goToCastle();
       expect(fsm.current).toEqual('castle');

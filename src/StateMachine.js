@@ -27,6 +27,7 @@ var SOD = (function StateOfDisrepair() {
     });
 
     var eventList = config.events || { };
+
     Object.keys(eventList).forEach(function(e) {
       (function(event) {
 
@@ -54,6 +55,9 @@ var SOD = (function StateOfDisrepair() {
 
         stateMachine[event] = function() {
           //
+          // Firing the current state
+          if (_currentState === eventList[event].to) return;
+          //
           // Attempting to fire an event with an incorrect current state (bad from on event)
           if (_currentState !== eventList[event].from) {
             if (typeof(stateMachine.onStateMachineError) === 'function') {
@@ -63,6 +67,7 @@ var SOD = (function StateOfDisrepair() {
             }
 
           } else {
+
             if (typeof(stateMachine[beforeCallbackName]) === 'function') {
               stateMachine[beforeCallbackName].call(); // better calling
             }
