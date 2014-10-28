@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+  <head>
+    <title>MultiColorBlocks</title>
+    <style>
+      .green { background-color: #0f0; }
+      .red { background-color: #f00; }
+      .yellow { background-color: #ff0; }
+
+      #square {
+        display: block;
+        width: 128px;
+        height: 128px;
+        margin: 32px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="square" class="green">&nbsp;</div>
+
+    <script src="src/StateMachine.js"></script>
+    <script>
+
+      var square = document.querySelector('#square');
+
+      var config = {
+        initial: 'green',
+        events: {
+          allclear: { from: 'red',    to: 'green', on: function() { square.className = 'green'; }},
+          caution:  { from: 'green',  to: 'yellow', on: function() { square.className = 'yellow'; }},
+          danger:   { from: 'yellow', to: 'red', on: function() { square.className = 'red'; }, before: function() { console.log('arrooooo!'); }}
+        }
+      };
+
+      var fsm = SOD.create(config);
+
+      function nextStatePlease() {
+        console.debug("Current: " + fsm.current);
+        switch(fsm.current) {
+          case 'green':
+            fsm.caution();
+            break;
+          case 'yellow':
+            fsm.danger();
+            break;
+          case 'red':
+            fsm.allclear();
+            break;
+        }
+      }
+
+      square.addEventListener('click',  function() {
+        console.debug('** click ** %s', fsm.current);
+        nextStatePlease();
+      }, false);
+
+    </script>
+  </body>
+</html>
