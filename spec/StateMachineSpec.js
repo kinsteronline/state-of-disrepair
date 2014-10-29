@@ -1,3 +1,4 @@
+
 describe("State Machine", function() {
 
   var fsm;
@@ -28,7 +29,7 @@ describe("State Machine", function() {
       initial: 'sleeping',
       events: {
         sleep: { from: 'awake', to: 'sleeping' },
-        wake: { from: 'sleeping', to: 'awake' }
+        wake: { from: [ 'napping', 'sleeping' ], to: 'awake' }
       }
     };
 

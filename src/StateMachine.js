@@ -5,11 +5,15 @@
  *
  * Currently in a State of Disrepair
  *
+ * So much learned & lifted from underscore.js
+ *
  */
 var SOD = (function StateOfDisrepair() {
   "use strict";
 
+
   var noop = function() { };
+
 
   function create(config) {
 
@@ -30,7 +34,9 @@ var SOD = (function StateOfDisrepair() {
 
     Object.keys(eventList).forEach(function(e) {
       (function(event) {
-
+        //
+        // Associate the callbacks if provided
+        //
         var beforeCallbackName = "onbefore" + event;
         Object.defineProperty(stateMachine, beforeCallbackName, {
           enumerable: false,
@@ -55,11 +61,18 @@ var SOD = (function StateOfDisrepair() {
 
         stateMachine[event] = function() {
           //
-          // Firing the current state
+          // Firing the current state, effective noop
           if (_currentState === eventList[event].to) return;
+
+          //
+          // Coerce the from to an array
+          if (!Array.isArray(eventList[event].from)) {
+            eventList[event].from = [ eventList[event].from ];
+          }
+
           //
           // Attempting to fire an event with an incorrect current state (bad from on event)
-          if (_currentState !== eventList[event].from) {
+          if (eventList[event].from.indexOf(_currentState) === -1) {
             if (typeof(stateMachine.onStateMachineError) === 'function') {
               stateMachine.onStateMachineError.call();
             } else {
@@ -87,7 +100,7 @@ var SOD = (function StateOfDisrepair() {
 
         // Build states list 
         if (_availableStates.indexOf(eventList[event].from) === -1) {
-          _availableStates.push(eventList[event].from);
+          _availableStates.concat(eventList[event].from);
         }
 
         if (_availableStates.indexOf(eventList[event].to) === -1) {
