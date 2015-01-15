@@ -23,11 +23,14 @@ body { overflow-y: scroll; }
 .jasmine_html-reporter .symbol-summary li.disabled:before { color: #bababa; content: "\02022"; }
 .jasmine_html-reporter .symbol-summary li.pending { line-height: 17px; }
 .jasmine_html-reporter .symbol-summary li.pending:before { color: #ba9d37; content: "*"; }
+.jasmine_html-reporter .symbol-summary li.empty { font-size: 14px; }
+.jasmine_html-reporter .symbol-summary li.empty:before { color: #ba9d37; content: "\02022"; }
 .jasmine_html-reporter .exceptions { color: #fff; float: right; margin-top: 5px; margin-right: 5px; }
 .jasmine_html-reporter .bar { line-height: 28px; font-size: 14px; display: block; color: #eee; }
 .jasmine_html-reporter .bar.failed { background-color: #ca3a11; }
 .jasmine_html-reporter .bar.passed { background-color: #007069; }
 .jasmine_html-reporter .bar.skipped { background-color: #bababa; }
+.jasmine_html-reporter .bar.errored { background-color: #ca3a11; }
 .jasmine_html-reporter .bar.menu { background-color: #fff; color: #aaaaaa; }
 .jasmine_html-reporter .bar.menu a { color: #333333; }
 .jasmine_html-reporter .bar a { color: white; }
