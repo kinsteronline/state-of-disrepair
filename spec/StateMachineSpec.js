@@ -3,18 +3,37 @@ describe("State Machine", function() {
 
   var fsm;
 
+  var beforeSleep = function() { console.log('BEFORE Sleep'); };
+  var onSleep = function() { console.log('ON Sleep'); };
+  var afterSleep = function() { console.log('AFTER Sleep'); };
+
+  var beforeWake = function() { console.log('BEFORE Wake'); };
+  var onWake = function() { console.log('ON Wake'); };
+  var afterWake = function() { console.log('AFTER Wake'); };
+
+
   var config = {
     initial: 'sleeping',
     events: {
-      sleep:  { from: 'awake',                    to: 'sleeping' },
-      wake:   { from: [ 'napping', 'sleeping' ],  to: 'awake' },
-      nap:    { from: [ 'awake' ],                to: 'napping' } 
+      sleep:  {
+        from: 'awake', to: 'sleeping',
+        before: beforeSleep, on: onSleep, after: afterSleep
+      },
+      wake: {
+        from: [ 'napping', 'sleeping' ],  to: 'awake',
+        before: beforeWake, on: onWake, after: afterWake
+      },
+      nap: { from: [ 'awake' ], to: 'napping' } 
     }
   };
 
 
   describe("setting the initial state", function() {
     beforeEach(function() { fsm = SOD.create(config); });
+
+    it("should set the current state initially", function() {
+      expect(fsm.current).toEqual('sleeping');
+    });
 
     it("should have a configured initial state", function() {
       expect(fsm.initial).toEqual('sleeping');
@@ -24,11 +43,6 @@ describe("State Machine", function() {
       fsm.initial = 'dozing'; 
       expect(fsm.initial).toEqual('sleeping');
     });
-
-    it("should set the current state initially", function() {
-      expect(fsm.current).toEqual('sleeping');
-    });
-
   });
 
   describe("building the events", function() {
@@ -38,23 +52,6 @@ describe("State Machine", function() {
       expect(fsm.sleep).toBeDefined();
       expect(fsm.wake).toBeDefined();
       expect(fsm.nap).toBeDefined();
-    });
-
-    it("should create the event before callback", function() {
-      expect(fsm.onBeforeSleep).toBeDefined();
-      expect(fsm.onBeforeWake).toBeDefined();
-      expect(fsm.onBeforeNap).toBeDefined();
-    });
-    it("should create the event on callback", function() {
-      expect(fsm.onSleep).toBeDefined();
-      expect(fsm.onWake).toBeDefined();
-      expect(fsm.onNap).toBeDefined();
-    });
-
-    it("should create the event after callback", function() {
-      expect(fsm.onAfterSleep).toBeDefined();
-      expect(fsm.onAfterWake).toBeDefined();
-      expect(fsm.onAfterNap).toBeDefined();
     });
   });
 
@@ -74,6 +71,12 @@ describe("State Machine", function() {
     it("should not change the state from \"sleeping\" to \"napping\" when nap'd while sleeping", function() {
       fsm.nap();
       expect(fsm.current).toEqual("sleeping");
+    });
+  });
+
+  describe("executing callbacks", function() {
+    it("should execute the before callback", function() {
+      fsm.wake();
     });
   });
 

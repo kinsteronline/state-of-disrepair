@@ -11,20 +11,18 @@
 var SOD = (function StateOfDisrepair() {
   "use strict";
 
-
   const noop = () => { };
-  const capitalize = str => { return str.charAt(0).toUpperCase() + str.slice(1); };
 
   function create(config) {
 
-    // FF is good
-    //let events = Object.assign(config.events);
-    let events = config.events;
+    let events = config.events; // should dupe this
+    let callbacks = {};
+    let stateMachine = {};
     let currentState;
 
-    let stateMachine = {};
-
+    // I'm not wild about this...
     function changeState(event) {
+
       let fromStates = Array.isArray(events[event].from) ? events[event].from : [ events[event].from ];
       let toState = events[event].to;
 
@@ -33,9 +31,20 @@ var SOD = (function StateOfDisrepair() {
         if (currentState === toState) return;
 
         if (fromStates.indexOf(currentState) !== -1) {
+          let cbs = executeCallbacks(event);
+          // how do this moar smart?
+          cbs.next(); // before
+          cbs.next(); // on
+          cbs.next(); // after
           currentState = toState;
         }
       };
+    }
+
+    function *executeCallbacks(event) {
+      yield callbacks[event].before.call();
+      yield callbacks[event].on.call();
+      yield callbacks[event].after.call();
     }
 
     Object.defineProperties(stateMachine, {
@@ -48,13 +57,14 @@ var SOD = (function StateOfDisrepair() {
     });
 
     for (let event in events) {
-      let capitalized = capitalize(event);
 
       stateMachine[event] = changeState(event);
 
-      stateMachine[`onBefore${capitalized}`] = noop;
-      stateMachine[`on${capitalized}`] = noop;
-      stateMachine[`onAfter${capitalized}`] = noop;
+      callbacks[event] = {};
+      callbacks[event].on = events[event].on || noop;
+      callbacks[event].before = events[event].before || noop;
+      callbacks[event].after = events[event].after || noop;
+
     }
 
     currentState = stateMachine.initial;

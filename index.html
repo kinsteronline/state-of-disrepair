@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>MultiColorBlocks</title>
     <style>
       .green { background-color: #0f0; }
@@ -12,48 +13,67 @@
         width: 128px;
         height: 128px;
         margin: 32px auto;
+        border-radius: 4px;
+        box-shadow: 0px 6px 8px #ddd;
+        cursor: pointer;
       }
     </style>
+    <script src="node_modules/6to5/browser-polyfill.js"></script>
+    <script src="StateMachine.js"></script>
   </head>
   <body>
     <div id="square" class="green">&nbsp;</div>
-
-    <script src="src/StateMachine.js"></script>
     <script>
 
-      var square = document.querySelector('#square');
+      (function() {
+        var square = document.getElementById("square");
+        console.log("Click on the Square");
 
-      var config = {
-        initial: 'green',
-        events: {
-          allclear: { from: 'red',    to: 'green', on: function() { square.className = 'green'; }},
-          caution:  { from: 'green',  to: 'yellow', on: function() { square.className = 'yellow'; }},
-          danger:   { from: 'yellow', to: 'red', on: function() { square.className = 'red'; }, before: function() { console.log('arrooooo!'); }}
+        var config = {
+          initial: 'green',
+          events: {
+            allclear: {
+              from: 'red', to: 'green',
+              on: function() { this.className = 'green'; }.bind(square),
+              after: function() { console.log("AFTER allclear, you're safe"); }
+            },
+            caution: {
+              from: 'green', to: 'yellow',
+              before: function() { console.debug("BEFORE caution"); },
+              on: function() { console.debug("ON caution"); this.className = 'yellow'; }.bind(square),
+              after: function() { console.debug("AFTER caution"); }
+            },
+            danger: {
+              from: 'yellow', to: 'red',
+              on: function() { this.className = 'red'; }.bind(square),
+              before: function() { console.log('BEFORE danger: Aarrooooo!!'); }
+            }
+          }
+        };
+
+        var fsm = SOD.create(config);
+
+        function nextStatePlease() {
+          switch(fsm.current) {
+            case 'green':
+              fsm.caution();
+              break;
+            case 'yellow':
+              fsm.danger();
+              break;
+            case 'red':
+              fsm.allclear();
+              break;
+          }
         }
-      };
+ 
+        square.addEventListener('click',  function() {
+          var previous = fsm.current;
+          nextStatePlease();
+          console.debug('** clicked ** %s => %s', previous, fsm.current);
+        }, false);
 
-      var fsm = SOD.create(config);
-
-      function nextStatePlease() {
-        console.debug("Current: " + fsm.current);
-        switch(fsm.current) {
-          case 'green':
-            fsm.caution();
-            break;
-          case 'yellow':
-            fsm.danger();
-            break;
-          case 'red':
-            fsm.allclear();
-            break;
-        }
-      }
-
-      square.addEventListener('click',  function() {
-        console.debug('** click ** %s', fsm.current);
-        nextStatePlease();
-      }, false);
-
+      })();
     </script>
   </body>
 </html>
