@@ -3,106 +3,78 @@ describe("State Machine", function() {
 
   var fsm;
 
+  var config = {
+    initial: 'sleeping',
+    events: {
+      sleep:  { from: 'awake',                    to: 'sleeping' },
+      wake:   { from: [ 'napping', 'sleeping' ],  to: 'awake' },
+      nap:    { from: [ 'awake' ],                to: 'napping' } 
+    }
+  };
+
+
   describe("setting the initial state", function() {
+    beforeEach(function() { fsm = SOD.create(config); });
 
     it("should have a configured initial state", function() {
-      fsm = SOD.create({ initial: 'init' });
-      expect(fsm.initial).toEqual('init');
+      expect(fsm.initial).toEqual('sleeping');
     });
 
     it("should not let you change the initial state", function() {
-      fsm = SOD.create({ initial: 'quitting' });
-      fsm.initial = 'starting'; // should throw perhaps?
-      expect(fsm.initial).toEqual('quitting');
+      fsm.initial = 'dozing'; 
+      expect(fsm.initial).toEqual('sleeping');
     });
 
-    it("should set the initial state as the current state", function() {
-      fsm = SOD.create({ initial: 'sleeping' });
+    it("should set the current state initially", function() {
       expect(fsm.current).toEqual('sleeping');
     });
 
   });
 
   describe("building the events", function() {
+    beforeEach(function() { fsm = SOD.create(config); });
 
-    var config = {
-      initial: 'sleeping',
-      events: {
-        sleep: { from: 'awake', to: 'sleeping' },
-        wake: { from: [ 'napping', 'sleeping' ], to: 'awake' }
-      }
-    };
-
-    beforeEach(function() {
-      fsm = SOD.create(config);
-    });
-
-    it("creates event functions", function() {
-      expect(fsm.wake).toBeDefined();
+    it("should create the events", function() {
       expect(fsm.sleep).toBeDefined();
+      expect(fsm.wake).toBeDefined();
+      expect(fsm.nap).toBeDefined();
     });
 
-    it("creates the before callbacks for the event", function() {
-      expect(fsm.onbeforewake).toBeDefined();
-      expect(fsm.onbeforesleep).toBeDefined();
+    it("should create the event before callback", function() {
+      expect(fsm.onBeforeSleep).toBeDefined();
+      expect(fsm.onBeforeWake).toBeDefined();
+      expect(fsm.onBeforeNap).toBeDefined();
+    });
+    it("should create the event on callback", function() {
+      expect(fsm.onSleep).toBeDefined();
+      expect(fsm.onWake).toBeDefined();
+      expect(fsm.onNap).toBeDefined();
     });
 
-    it("creates the on callbacks for the event", function() {
-      expect(fsm.onwake).toBeDefined();
-      expect(fsm.onsleep).toBeDefined();
+    it("should create the event after callback", function() {
+      expect(fsm.onAfterSleep).toBeDefined();
+      expect(fsm.onAfterWake).toBeDefined();
+      expect(fsm.onAfterNap).toBeDefined();
     });
-
-    it("creates the after callbacks for the event", function() {
-      expect(fsm.onafterwake).toBeDefined();
-      expect(fsm.onaftersleep).toBeDefined();
-    });
-
   });
 
   describe("changing states", function() {
-    var fsm;
+    beforeEach(function() { fsm = SOD.create(config); });
 
-    // must figure out spies...
-    var renderCastle = function() {
-      return "|===| n |===|";
-    };
-
-    var config = {
-      initial: 'intro',
-      events: {
-        goToCastle: { from: 'intro', to: 'castle', before: renderCastle },
-        goToProvingGrounds: { from: 'castle', to: 'provingGrounds' },
-        goToLlylgamn: { from: 'castle', to: 'llylgamn' },
-        goToGraveyard: { from: 'provingGrounds', to: 'graveyard' }
-      }
-    };
-
-    beforeEach(function() {
-      fsm = SOD.create(config);
-      spyOn(fsm, 'onbeforegoToCastle');
+    it("should not change the state from \"sleeping\" when sleep'd is called", function() {
+      fsm.sleep();
+      expect(fsm.current).toEqual("sleeping");
     });
 
-    it("should not complain when trying to re-enter the current state", function() {
-      fsm.goToCastle();
-      expect(fsm.goToCastle).not.toThrow();
+    it("should change the state from \"sleeping\" to \"awake\" when wake'd while sleeping", function() {
+      fsm.wake();
+      expect(fsm.current).toEqual("awake");
     });
 
-    it("changes state on event", function() {
-      fsm.goToCastle();
-      expect(fsm.current).toEqual('castle');
+    it("should not change the state from \"sleeping\" to \"napping\" when nap'd while sleeping", function() {
+      fsm.nap();
+      expect(fsm.current).toEqual("sleeping");
     });
-
-
-    // the callback seems to work, but I cannot spy it's call
-    xit("calls before callback", function() {
-      fsm.goToCastle();
-      expect(fsm.onbeforegoToCastle).toHaveBeenCalled();
-    });
-
-    it("will throw an error with an event from an incorrect state", function() {
-      expect(fsm.goToGraveyard).toThrow();
-    });
-
   });
 
 });

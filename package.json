@@ -1,8 +1,8 @@
 {
   "name": "state-of-disrepair",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A state machine in a constant state of disrepair.",
-  "main": "src/StateMachine.js",
+  "main": "StateMachine.js",
   "scripts": {
     "test": "echo \"open SpecRunner.html\""
   },
@@ -15,5 +15,14 @@
   "bugs": {
     "url": "https://github.com/kinsteronline/state-of-disrepair/issues"
   },
-  "homepage": "https://github.com/kinsteronline/state-of-disrepair"
+  "homepage": "https://github.com/kinsteronline/state-of-disrepair",
+  "devDependencies": {
+    "6to5": "^3.4.1",
+    "browser-sync": "^2.0.0-rc9",
+    "gulp": "^3.8.10",
+    "gulp-6to5": "^3.0.0",
+    "gulp-jshint": "^1.9.2",
+    "jshint-stylish": "^1.0.0"
+  },
+  "dependencies": {}
 }

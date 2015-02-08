@@ -12,111 +12,57 @@ var SOD = (function StateOfDisrepair() {
   "use strict";
 
 
-  var noop = function() { };
-
+  const noop = () => { };
+  const capitalize = str => { return str.charAt(0).toUpperCase() + str.slice(1); };
 
   function create(config) {
 
-    var _availableStates = [];
-    var _currentState = undefined;
+    // FF is good
+    //let events = Object.assign(config.events);
+    let events = config.events;
+    let currentState;
 
-    var stateMachine = {
-      get current() { return _currentState; }
-    };
+    let stateMachine = {};
 
-    // You cannot change the initial state later on
-    Object.defineProperty(stateMachine, "initial", {
-      value: config.initial,
-      writable: false 
+    function changeState(event) {
+      let fromStates = Array.isArray(events[event].from) ? events[event].from : [ events[event].from ];
+      let toState = events[event].to;
+
+      return () => {
+        // Firing the current state, effective noop
+        if (currentState === toState) return;
+
+        if (fromStates.indexOf(currentState) !== -1) {
+          currentState = toState;
+        }
+      };
+    }
+
+    Object.defineProperties(stateMachine, {
+      "initial": {
+        value: config.initial
+      },
+      "current": {
+        get: () => { return currentState; }
+      }
     });
 
-    var eventList = config.events || { };
+    for (let event in events) {
+      let capitalized = capitalize(event);
 
-    Object.keys(eventList).forEach(function(e) {
-      (function(event) {
-        //
-        // Associate the callbacks if provided
-        //
-        var beforeCallbackName = "onbefore" + event;
-        Object.defineProperty(stateMachine, beforeCallbackName, {
-          enumerable: false,
-          writable: true,
-          value: eventList[event].before || noop
-        });
+      stateMachine[event] = changeState(event);
 
-        var onCallbackName = 'on' + event;
-        Object.defineProperty(stateMachine, onCallbackName, {
-          enumerable: false,
-          writable: true,
-          value: eventList[event].on || noop
-        });
+      stateMachine[`onBefore${capitalized}`] = noop;
+      stateMachine[`on${capitalized}`] = noop;
+      stateMachine[`onAfter${capitalized}`] = noop;
+    }
 
-        var afterCallbackName = 'onafter' + event; 
-        Object.defineProperty(stateMachine, afterCallbackName, {
-          enumerable: false,
-          writable: true,
-          value: eventList[event].after || noop
-        });
-
-
-        stateMachine[event] = function() {
-          //
-          // Firing the current state, effective noop
-          if (_currentState === eventList[event].to) return;
-
-          //
-          // Coerce the from to an array
-          if (!Array.isArray(eventList[event].from)) {
-            eventList[event].from = [ eventList[event].from ];
-          }
-
-          //
-          // Attempting to fire an event with an incorrect current state (bad from on event)
-          if (eventList[event].from.indexOf(_currentState) === -1) {
-            if (typeof(stateMachine.onStateMachineError) === 'function') {
-              stateMachine.onStateMachineError.call();
-            } else {
-              throw Error('BAD STATE'); //harsh, add a general onbadstateerror()
-            }
-
-          } else {
-
-            if (typeof(stateMachine[beforeCallbackName]) === 'function') {
-              stateMachine[beforeCallbackName].call(); // better calling
-            }
-
-            _currentState = eventList[event].to;
-
-            if (typeof(stateMachine[onCallbackName]) === 'function')  {
-              stateMachine[onCallbackName].call();
-            }
-
-            if(typeof(stateMachine[afterCallbackName]) === 'function') {
-              stateMachine[afterCallbackName]();
-            }
-
-          }
-        };
-
-        // Build states list 
-        if (_availableStates.indexOf(eventList[event].from) === -1) {
-          _availableStates.concat(eventList[event].from);
-        }
-
-        if (_availableStates.indexOf(eventList[event].to) === -1) {
-          _availableStates.push(eventList[event].to);
-        }
-
-      })(e);
-    });
-
-    _currentState = stateMachine.initial;
-
+    currentState = stateMachine.initial;
     return Object.create(stateMachine);
   }
 
   return {
-    create: create
+    create
   };
 
 }());
