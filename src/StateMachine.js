@@ -15,7 +15,7 @@ var SOD = (function StateOfDisrepair() {
 
   function create(config) {
 
-    let events = config.events; // should dupe this
+    let events = Object.create(config.events);
     let callbacks = {};
     let stateMachine = {};
     let currentState;
@@ -23,14 +23,25 @@ var SOD = (function StateOfDisrepair() {
     // I'm not wild about this...
     function changeState(event) {
 
-      let fromStates = Array.isArray(events[event].from) ? events[event].from : [ events[event].from ];
+      // states lists could be:
+      //   1. Array
+      //   2. An object with keys & null values
+      //   3. A Set()
+      let fromStates = Array.isArray(events[event].from) ? events[event].from : Array.of(events[event].from);
       let toState = events[event].to;
 
+      // return *() => ...
       return () => {
         // Firing the current state, effective noop
         if (currentState === toState) return;
-
-        if (fromStates.indexOf(currentState) !== -1) {
+        //
+        // Some jsperfs have noted that the indexOf is now
+        // a bit faster than Object.in with keys & null values.
+        //
+        // The array.includes() is forward looking.
+        //  
+        //if (fromStates.indexOf(currentState) !== -1) {
+        if (fromStates.includes(currentState)) {
           let cbs = executeCallbacks(event);
           // how do this moar smart?
           cbs.next(); // before
@@ -41,6 +52,7 @@ var SOD = (function StateOfDisrepair() {
       };
     }
 
+    // Store each as a *fn() above
     function *executeCallbacks(event) {
       yield callbacks[event].before.call();
       yield callbacks[event].on.call();

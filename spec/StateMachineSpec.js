@@ -75,7 +75,8 @@ describe("State Machine", function() {
   });
 
   describe("executing callbacks", function() {
-    it("should execute the before callback", function() {
+    xit("should execute the before callback", function() {
+      // I do not know how to spy on this
       fsm.wake();
     });
   });

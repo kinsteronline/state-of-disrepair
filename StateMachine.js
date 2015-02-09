@@ -16,7 +16,10 @@ var SOD = (function StateOfDisrepair() {
   var noop = function () {};
 
   function create(config) {
-    var executeCallbacks = regeneratorRuntime.mark(function executeCallbacks(event) {
+    var executeCallbacks = regeneratorRuntime.mark(
+
+    // Store each as a *fn() above
+    function executeCallbacks(event) {
       return regeneratorRuntime.wrap(function executeCallbacks$(context$3$0) {
         while (1) switch (context$3$0.prev = context$3$0.next) {
           case 0:
@@ -35,21 +38,32 @@ var SOD = (function StateOfDisrepair() {
       }, executeCallbacks, this);
     });
 
-    var events = config.events; // should dupe this
+    var events = Object.create(config.events);
     var callbacks = {};
     var stateMachine = {};
     var currentState = undefined;
 
     // I'm not wild about this...
     function changeState(event) {
-      var fromStates = Array.isArray(events[event].from) ? events[event].from : [events[event].from];
+      // states lists could be:
+      //   1. Array
+      //   2. An object with keys & null values
+      //   3. A Set()
+      var fromStates = Array.isArray(events[event].from) ? events[event].from : Array.of(events[event].from);
       var toState = events[event].to;
 
+      // return *() => ...
       return function () {
         // Firing the current state, effective noop
         if (currentState === toState) return;
-
-        if (fromStates.indexOf(currentState) !== -1) {
+        //
+        // Some jsperfs have noted that the indexOf is now
+        // a bit faster than Object.in with keys & null values.
+        //
+        // The array.includes() is forward looking.
+        // 
+        //if (fromStates.indexOf(currentState) !== -1) {
+        if (fromStates.includes(currentState)) {
           var cbs = executeCallbacks(event);
           // how do this moar smart?
           cbs.next(); // before
