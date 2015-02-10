@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Page Load</title>
+    <style>
+      html,body { border: 0 none; margin: 0, padding: 0 };
+      .fullpage {
+        height: 100vh;
+        overflow: hidden;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+    <script src="zepto.min.js"></script>
+    <script src="browser-polyfill.js"></script>
+    <script src="StateMachine.js"></script>
+  </head>
+  <body>
+    <div id="loading" class="fullpage">
+      <img src="./knight.png">
+      <p>
+        Press any key to continue...
+      </p>
+    </div>
+    <div id="main-menu" class="fullpage hidden">
+      <h1>Knight Game</h1>
+      <ul>
+        <li>Start New Adventure</li>
+        <li>Continue Adventure</li>
+        <li><a class="toCredits" href="#">View Credits</a></li>
+      </ul>
+    </div>
+    <div id="credits" class="fullpage hidden">
+      <p>
+        I found the knight image 
+        <a href="https://openclipart.org/detail/196111/princesses-knights-shields---edited-5-by-logozabawy-196111">here</a> and am grateful for allowing me to 
+        use it.
+       </p>
+       <a href="#">Back to Main Menu</a>
+     </div>
+    <script>
+
+
+      Zepto(function($) {
+
+        var body = $("body");
+        var loadingScreen = body.find("#loading");
+        var mainMenu = body.find("#main-menu");
+        var credits = body.find("#credits");
+        var screens = [ loadingScreen, mainMenu, credits ];
+
+        function hideAll() {
+          screens.forEach(hide);
+        }
+
+        function hide(element) { element.hide(); }
+        function show(element) { element.show(); }
+
+        // Since loading is only shown but once, I should
+        // just delete the thing
+        function hideLoading() { return hide(loadingScreen); }
+
+        function showMainMenu() { return show(mainMenu); }
+        function hideMainMenu() { return hide(mainMenu); }
+
+        function showCredits() { return show(credits); }
+        function hideCredits() { return hide(credits); }
+
+
+
+        // Screen
+        var config = {
+          initial: "loading",
+          events: {
+            displayMainMenu: {
+              from: [ "loading", "showingCredits" ], to: "showingMainMenu",
+              before: hideAll, on: showMainMenu
+            },
+            displayCredits: {
+              from: [ "showingMainMenu" ], to: "showingCredits",
+              before: hideMainMenu, on: showCredits
+            }
+          }
+        };
+
+        var fsm = SOD.create(config);
+
+        mainMenu.find("a.toCredits").on("click", fsm.displayCredits);
+        credits.find("a").on("click", fsm.displayMainMenu);
+
+
+        //
+        // Use a preloader do things while being able to 
+        // respond to a request quickly with a DOMContentLoaded
+        // or load event, instead of this old school press any key.
+        // 
+        body.one("keypress", fsm.displayMainMenu);
+
+       });
+
+    </script>
+  </body>
+</html>
+
+ 
