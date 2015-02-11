@@ -61,7 +61,7 @@ var SOD = (function StateOfDisrepair() {
         // a bit faster than Object.in with keys & null values.
         //
         // The array.includes() is forward looking.
-        // 
+        //
         //if (fromStates.indexOf(currentState) !== -1) {
         if (fromStates.includes(currentState)) {
           var cbs = executeCallbacks(event);

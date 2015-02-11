@@ -1,0 +1,22 @@
+{
+  "globals": { },
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "ecmaFeatures": {
+    "arrowFunctions": true,
+    "blockBindings": true,
+    "defaultParams": true,
+    "forOf": true,
+    "generators": true,
+    "objectLiteralShorthandMethods": true,
+    "objectLiteralShorthandProperties": true,
+    "templateStrings": true
+  },
+  "rules": {
+    "eol-last": false,
+    "no-trailing-spaces": false,
+    "no-unused-vars": [2, { "vars": "local" }]
+  }
+}

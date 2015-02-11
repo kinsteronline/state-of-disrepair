@@ -2,7 +2,7 @@
 
 var gulp = require("gulp");
 var six2five = require("gulp-6to5");
-var jshint = require("gulp-jshint");
+var eslint = require("gulp-eslint");
 
 var browserSync = require("browser-sync");
 
@@ -13,10 +13,10 @@ gulp.task("six2five", function() {
     .pipe(gulp.dest(""));
 });
 
-gulp.task("jshint", function() {
+gulp.task("lint", function() {
   return gulp.src("src/*.js")
-    .pipe(jshint())
-    .pipe(jshint.reporter("jshint-stylish"))
+    .pipe(eslint())
+    .pipe(eslint.format());
 });
 
 gulp.task("browser-sync", function() {
@@ -29,7 +29,7 @@ gulp.task("browser-sync", function() {
   });
 });
 
-gulp.task("default", [ "jshint", "six2five", "browser-sync" ], function() {
-  gulp.watch([ "src/*.js" ], [ "jshint", "six2five", browserSync.reload ]);
+gulp.task("default", [ "lint", "six2five", "browser-sync" ], function() {
+  gulp.watch([ "src/*.js" ], [ "lint", "six2five", browserSync.reload ]);
   gulp.watch([ "spec/*.js" ], browserSync.reload);
 });

@@ -1,6 +1,6 @@
 /*
  * This is a basic retread of what jakesgordon did in
- * his state machine, but with less quality. I wanted 
+ * his state machine, but with less quality. I wanted
  * to learn.
  *
  * Currently in a State of Disrepair
@@ -33,13 +33,13 @@ var SOD = (function StateOfDisrepair() {
       // return *() => ...
       return () => {
         // Firing the current state, effective noop
-        if (currentState === toState) return;
+        if (currentState === toState) { return; }
         //
         // Some jsperfs have noted that the indexOf is now
         // a bit faster than Object.in with keys & null values.
         //
         // The array.includes() is forward looking.
-        //  
+        //
         //if (fromStates.indexOf(currentState) !== -1) {
         if (fromStates.includes(currentState)) {
           let cbs = executeCallbacks(event);
